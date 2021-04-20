@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import GridLoader from "react-spinners/GridLoader";
 
 // TODO: move to secrets
 const URL =
@@ -49,13 +50,21 @@ async function uploadFile(file) {
 }
 
 export function LoveboxDropzone() {
-    const onDrop = useCallback((acceptedFiles) => {
-        Promise.all(acceptedFiles.map(uploadFile));
+    const [uploading, setUploading] = useState(false);
+
+    const onDrop = useCallback(async (acceptedFiles) => {
+        setUploading(true);
+        await Promise.all(acceptedFiles.map(uploadFile));
+        setUploading(false);
     }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
     });
+
+    if (uploading) {
+        return <GridLoader />;
+    }
 
     return (
         <div {...getRootProps()}>
